@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  college_id   String   @unique
+  email        String   @unique
+  password     String
+  nickname     String
+  role         Role     @default(student)
+  status       Status   @default(active)
+  abuse_score  Int      @default(0)
+  rating       Int      @default(100)
+  created_at   DateTime @default(now())
+
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+
+  reports   Report[]   @relation("UserReports")
+  reactions Reaction[]
+}
+
+model Message {
+  id              Int      @id @default(autoincrement())
+  sender_id       Int
+  receiver_id     Int
+  type            MessageType
+  message         String
+  is_anonymous    Boolean  @default(true)
+  is_deleted      Boolean  @default(false)
+  conversation_id String   @default("")
+  parent_id       Int?
+  created_at      DateTime @default(now())
+
+  sender   User @relation("SentMessages",   fields: [sender_id],   references: [id])
+  receiver User @relation("ReceivedMessages", fields: [receiver_id], references: [id])
+
+  parent  Message?  @relation("Replies", fields: [parent_id], references: [id])
+  replies Message[] @relation("Replies")
+
+  reports   Report[]
+  reactions Reaction[]
+}
+
+model Report {
+  id             Int          @id @default(autoincrement())
+  reporter_id    Int
+  message_id     Int
+  reason         String
+  status         ReportStatus @default(pending)
+  rating_penalty Int          @default(5)
+  created_at     DateTime     @default(now())
+
+  reporter User    @relation("UserReports", fields: [reporter_id], references: [id])
+  message  Message @relation(fields: [message_id], references: [id])
+
+  @@unique([reporter_id, message_id])
+}
+
+model Reaction {
+  id         Int      @id @default(autoincrement())
+  message_id Int
+  user_id    Int
+  type       ReactionType
+
+  message Message @relation(fields: [message_id], references: [id])
+  user    User    @relation(fields: [user_id], references: [id])
+}
+
+model AdminLog {
+  id             Int      @id @default(autoincrement())
+  admin_id       Int
+  action         String
+  target_user_id Int?
+  report_id      Int?
+  reason         String   @default("")
+  created_at     DateTime @default(now())
+}
+
+enum Role {
+  student
+  faculty
+  admin
+}
+
+enum Status {
+  active
+  blocked
+  banned
+}
+
+enum MessageType {
+  compliment
+  complaint
+}
+
+enum ReportStatus {
+  pending
+  resolved
+  rejected
+}
+
+enum ReactionType {
+  like
+  love
+}

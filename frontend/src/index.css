@@ -1,0 +1,54 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'DM Sans', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+
+  --color-cine-base: #0d0d12;
+  --color-cine-card: #1b1b24;
+  --color-cine-red: #8b0000;
+  --color-cine-rose: #ff4d6d;
+  --color-cine-purple: #9b5de5;
+  --color-cine-muted: #9ca3af;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-cine-base text-zinc-100 antialiased;
+    font-family: var(--font-body);
+  }
+  #root {
+    min-height: 100vh;
+    width: 100%;
+  }
+}
+
+/* Button glow keyframes */
+@keyframes btn-glow {
+  0%,
+  100% {
+    box-shadow:
+      0 0 20px rgba(155, 93, 229, 0.25),
+      0 0 40px rgba(255, 77, 109, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 0 28px rgba(155, 93, 229, 0.45),
+      0 0 56px rgba(255, 77, 109, 0.2);
+  }
+}
+
+.animate-btn-glow {
+  animation: btn-glow 3s ease-in-out infinite;
+}
+
+.glass-panel {
+  @apply rounded-2xl border border-white/10 bg-cine-card/60 shadow-xl backdrop-blur-xl;
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-cine-rose via-cine-purple to-cine-rose bg-clip-text text-transparent;
+}
